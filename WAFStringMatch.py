@@ -1,17 +1,15 @@
 import boto3
+import time
 
-from ProfileSetup import ProfileSetup
-
-credprofile = ProfileSetup("devl")
-assumedRoleObject = credprofile.assumerole()
-#print(assumedRoleObject)
-wafclient = boto3.client('waf-regional', region_name='us-east-1', aws_access_key_id=assumedRoleObject["Credentials"]["AccessKeyId"], aws_secret_access_key=assumedRoleObject["Credentials"]["SecretAccessKey"], aws_session_token=assumedRoleObject["Credentials"]["SessionToken"]) 
+wafclient = boto3.client('waf-regional', region_name='us-east-1', aws_access_key_id='AKIAS46V6IS5SR2ZVVHM', aws_secret_access_key='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') 
 changetoken = wafclient.get_change_token()["ChangeToken"]
 print(changetoken)
 response = wafclient.create_regex_pattern_set( Name='FileUploadMultiPart', ChangeToken=changetoken )
 print(response)
 regexpatternct = response["ChangeToken"]
+print(regexpatternct)
 regextpatternsetid = response["RegexPatternSet"]["RegexPatternSetId"]
+changetoken = wafclient.get_change_token()["ChangeToken"]
 updateregexresponse = wafclient.update_regex_pattern_set(
                        RegexPatternSetId=regextpatternsetid,
                        Updates=[
@@ -20,15 +18,12 @@ updateregexresponse = wafclient.update_regex_pattern_set(
                                    'RegexPatternString': 'multipart/form-data*'
                                 },
                            ],
-                       ChangeToken=regexpatternct
+                       ChangeToken=changetoken
                        )
 print("Updating Regex pattern Set Done")
 
 
 changetoken = wafclient.get_change_token()["ChangeToken"]
-
-
-
 regexmatchresponse = wafclient.create_regex_match_set(
                         Name='FileUploadMatchCondition',
                         ChangeToken=changetoken
@@ -36,10 +31,9 @@ regexmatchresponse = wafclient.create_regex_match_set(
 
 print("Creating Regex match Set Done")
 regexmatchsetid = regexmatchresponse["RegexMatchSet"]["RegexMatchSetId"]
-
 changetoken = wafclient.get_change_token()["ChangeToken"]
 updateregexmatchresponse = wafclient.update_regex_match_set(
-                            RegexMatchSetId='string',
+                            RegexMatchSetId=regexmatchsetid,
                             Updates=[
                                 {
                                     'Action': 'INSERT',
@@ -57,3 +51,4 @@ updateregexmatchresponse = wafclient.update_regex_match_set(
                         )
 
 print(updateregexmatchresponse)
+
