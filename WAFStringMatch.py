@@ -1,7 +1,7 @@
 import boto3
 import time
 
-wafclient = boto3.client('waf-regional', region_name='us-east-1', aws_access_key_id='AKIAS46V6IS5SR2ZVVHM', aws_secret_access_key='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') 
+wafclient = boto3.client('waf-regional', region_name='us-east-1', aws_access_key_id='', aws_secret_access_key='') 
 changetoken = wafclient.get_change_token()["ChangeToken"]
 print(changetoken)
 response = wafclient.create_regex_pattern_set( Name='FileUploadMultiPart', ChangeToken=changetoken )
